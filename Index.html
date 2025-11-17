@@ -1,1 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Fitness Generator</title>
+    <style>
+        /* Basic Mobile-First CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 90%; /* Max width for mobile */
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Important for responsive layout */
+        }
+        button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        
+        /* Media Query for PC (Desktop/Larger Screens) */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px; /* Wider container on desktop */
+                padding: 30px;
+            }
+            button {
+                width: auto; /* Button doesn't span full width on desktop */
+                float: right;
+            }
+        }
+    </style>
+</head>
+<body>
 
+    <div class="container">
+        <h1>Welcome! Define Your Fitness Goal</h1>
+        
+        <form id="fitnessForm">
+            <div class="form-group">
+                <label for="objective">What is your primary goal?</label>
+                <select id="objective" name="objective" required>
+                    <option value="">-- Select Objective --</option>
+                    <option value="lose_weight">Lose Weight</option>
+                    <option value="gain_muscle">Gain Muscle</option>
+                    <option value="stay_healthy">Stay Healthy</option>
+                </select>
+            </div>
+
+            <hr> <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="">-- Select Gender --</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="height">Height (cm):</label>
+                <input type="number" id="height" name="height" min="100" max="250" required>
+            </div>
+
+            <div class="form-group">
+                <label for="weight">Weight (kg):</label>
+                <input type="number" id="weight" name="weight" min="30" max="300" required>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" min="10" max="100" required>
+            </div>
+
+            <div class="form-group">
+                <label for="frequency">How many days per week can you train?</label>
+                <input type="number" id="frequency" name="frequency" min="1" max="7" required>
+            </div>
+
+            <button type="submit">Generate My Workout Plan</button>
+        </form>
+
+        <div id="workoutTableContainer" style="margin-top: 40px;">
+            </div>
+
+    </div>
+
+    <script>
+        // Example structure for the table generation
+        document.getElementById('fitnessForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Stop form from submitting normally
+            
+            // 1. Get all form values (objective, gender, height, etc.)
+            const objective = document.getElementById('objective').value;
+            // ... get other values
+
+            // 2. Run the logic based on the user's data and objective
+            
+            // 3. Generate the HTML table string for the workout
+            let tableHTML = '<h2>Your Personalized Workout</h2>';
+            tableHTML += '<table border="1" style="width:100%; border-collapse: collapse;">';
+            tableHTML += '<thead><tr><th>Day</th><th>Task (Exercise)</th><th>Sets x Reps</th><th>Notes</th></tr></thead>';
+            tableHTML += '<tbody>';
+            
+            // Example Row (Actual logic would loop based on the frequency input)
+            if (objective === 'gain_muscle') {
+                tableHTML += '<tr><td>Day 1</td><td>Bench Press</td><td>4 x 8</td><td>Focus on slow eccentric motion.</td></tr>';
+            } else if (objective === 'lose_weight') {
+                tableHTML += '<tr><td>Day 1</td><td>High Intensity Interval Training (HIIT)</td><td>30 mins</td><td>Keep heart rate elevated.</td></tr>';
+            }
+            // ... more logic for other days/objectives
+
+            tableHTML += '</tbody></table>';
+
+            // 4. Insert the table into the container
+            document.getElementById('workoutTableContainer').innerHTML = tableHTML;
+        });
+    </script>
+
+</body>
+</html>
