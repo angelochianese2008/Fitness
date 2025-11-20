@@ -5,23 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personalized Fitness Generator</title>
     <style>
-        /* Basic Mobile-First CSS */
+        /* Base Styling (Light Mode Defaults) */
+        :root {
+            --bg-color: #f4f4f9;
+            --container-bg: #fff;
+            --text-color: #333;
+            --header-color: #333;
+            --input-border: #ccc;
+            --button-bg: #5cb85c;
+            --button-hover: #4cae4c;
+            --table-header-bg: #f0f0f0;
+            --week-header-bg: #337ab7;
+        }
+
+        /* Dark Mode Override */
+        .dark-mode {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #f0f0f0;
+            --header-color: #5cb85c;
+            --input-border: #444;
+            --button-bg: #5cb85c;
+            --button-hover: #4cae4c;
+            --table-header-bg: #2a2a2a;
+            --week-header-bg: #4a4a4a;
+        }
+        
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f9;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            position: relative; /* For background visuals */
+            overflow-x: hidden;
         }
+        
+        /* Background Visuals (Subtle Fitness-related Circles) */
+        .bg-visual {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(92, 184, 92, 0.1); /* Light green tint */
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(50px);
+            opacity: 0.6;
+        }
+        .bg-visual:nth-child(1) { top: 10%; left: 5%; }
+        .bg-visual:nth-child(2) { bottom: 15%; right: 10%; width: 200px; height: 200px; }
+        .bg-visual:nth-child(3) { top: 50%; right: 5%; width: 100px; height: 100px; }
+
         .container {
-            max-width: 90%; /* Max width for mobile */
+            max-width: 90%; 
             margin: auto;
             padding: 20px;
-            background: #fff;
+            background: var(--container-bg);
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
         }
         h1 {
-            color: #333;
+            color: var(--header-color);
             text-align: center;
             margin-bottom: 20px;
         }
@@ -36,12 +83,15 @@
         input[type="number"], select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--input-border);
             border-radius: 4px;
-            box-sizing: border-box; /* Important for responsive layout */
+            box-sizing: border-box;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s, border-color 0.3s;
         }
         button {
-            background-color: #5cb85c;
+            background-color: var(--button-bg);
             color: white;
             padding: 10px 15px;
             border: none;
@@ -49,37 +99,166 @@
             cursor: pointer;
             width: 100%;
             font-size: 16px;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #4cae4c;
+            background-color: var(--button-hover);
+        }
+
+        /* Toggle Switch Styling */
+        #theme-toggle-container {
+            text-align: right;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+            margin-left: 10px;
+        }
+        .switch input {opacity: 0; width: 0; height: 0;}
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #5cb85c;
+        }
+        input:checked + .slider:before {
+            transform: translateX(14px);
         }
         
+        /* Table Styling (same as previous, adjusted for variables) */
+        #workoutTableContainer {
+            margin-top: 40px;
+            overflow-x: auto;
+        }
+        .workout-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            text-align: left;
+        }
+        .workout-table th, .workout-table td {
+            padding: 10px 12px;
+            border: 1px solid var(--input-border);
+        }
+        .workout-table th {
+            background-color: var(--table-header-bg);
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .week-header {
+            background-color: var(--week-header-bg) !important;
+            color: white !important;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .print-download-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--input-border);
+        }
+        .print-download-buttons button {
+            width: auto;
+            flex-grow: 1;
+        }
+
         /* Media Query for PC (Desktop/Larger Screens) */
         @media (min-width: 768px) {
             .container {
-                max-width: 600px; /* Wider container on desktop */
+                max-width: 800px;
                 padding: 30px;
             }
-            button {
-                width: auto; /* Button doesn't span full width on desktop */
+            #fitnessForm button {
+                width: auto;
                 float: right;
             }
         }
+
+        /* Print Specific Styles */
+        @media print {
+            body {
+                background-color: white; /* Force white background for printing */
+                color: black;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100% !important;
+                padding: 0;
+            }
+            /* Hide non-essential elements for printing */
+            #theme-toggle-container, 
+            .bg-visual, 
+            .form-group, 
+            #fitnessForm button,
+            .print-download-buttons {
+                display: none;
+            }
+            .workout-table {
+                font-size: 12pt;
+            }
+            /* Ensure week headers are legible in print */
+            .week-header {
+                background-color: #333 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact; /* Forcing background color in print */
+                print-color-adjust: exact;
+            }
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
+    <div class="bg-visual"></div>
+    <div class="bg-visual"></div>
+    <div class="bg-visual"></div>
 
     <div class="container">
-        <h1>Welcome! Define Your Fitness Goal</h1>
+        
+        <div id="theme-toggle-container">
+            <span>Light Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+            <span>Dark Mode</span>
+        </div>
+
+        <h1>Welcome! Define Your Fitness Goal 💪</h1>
         
         <form id="fitnessForm">
             <div class="form-group">
                 <label for="objective">What is your primary goal?</label>
                 <select id="objective" name="objective" required>
                     <option value="">-- Select Objective --</option>
-                    <option value="lose_weight">Lose Weight</option>
-                    <option value="gain_muscle">Gain Muscle</option>
-                    <option value="stay_healthy">Stay Healthy</option>
+                    <option value="lose_weight">Lose Weight (Focus: Cardio & Full-Body)</option>
+                    <option value="gain_muscle">Gain Muscle (Focus: Compound Lifts & Hypertrophy)</option>
+                    <option value="stay_healthy">Stay Healthy (Focus: Mobility & Light Resistance)</option>
                 </select>
             </div>
 
@@ -109,47 +288,163 @@
             </div>
 
             <div class="form-group">
-                <label for="frequency">How many days per week can you train?</label>
-                <input type="number" id="frequency" name="frequency" min="1" max="7" required>
+                <label for="frequency">How many days per week can you train (1-6)?</label>
+                <input type="number" id="frequency" name="frequency" min="1" max="6" required>
+                <small style="color: #888;">*A frequency of 3 or 4 is ideal for many plans.</small>
             </div>
 
-            <button type="submit">Generate My Workout Plan</button>
+            <button type="submit">Generate My 4-Week Plan</button>
         </form>
 
-        <div id="workoutTableContainer" style="margin-top: 40px;">
-            </div>
+        <div id="workoutTableContainer">
+        </div>
 
     </div>
 
     <script>
-        // Example structure for the table generation
-        document.getElementById('fitnessForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Stop form from submitting normally
-            
-            // 1. Get all form values (objective, gender, height, etc.)
-            const objective = document.getElementById('objective').value;
-            // ... get other values
+        // --- 1. THEME TOGGLE LOGIC ---
+        document.getElementById('theme-toggle').addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode', this.checked);
+        });
 
-            // 2. Run the logic based on the user's data and objective
+        // --- 2. WORKOUT GENERATION LOGIC (Same as previous, enhanced with PDF/Print) ---
+        document.getElementById('fitnessForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
             
-            // 3. Generate the HTML table string for the workout
-            let tableHTML = '<h2>Your Personalized Workout</h2>';
-            tableHTML += '<table border="1" style="width:100%; border-collapse: collapse;">';
-            tableHTML += '<thead><tr><th>Day</th><th>Task (Exercise)</th><th>Sets x Reps</th><th>Notes</th></tr></thead>';
+            const objective = document.getElementById('objective').value;
+            const frequency = parseInt(document.getElementById('frequency').value);
+            
+            let tableHTML = '<h2>Your Personalized 4-Week Training Program</h2>';
+            tableHTML += `<p><strong>Objective:</strong> ${document.querySelector('#objective option:checked').textContent} | <strong>Training Days Per Week:</strong> ${frequency}</p>`;
+            
+            tableHTML += '<div id="printableWorkout">'; // Wrapper for print/PDF
+            tableHTML += '<table class="workout-table">';
+            tableHTML += '<thead><tr><th>Week Day</th><th>Target Muscle/Activity</th><th>Sets x Reps</th><th>Notes/Focus</th></tr></thead>';
             tableHTML += '<tbody>';
-            
-            // Example Row (Actual logic would loop based on the frequency input)
-            if (objective === 'gain_muscle') {
-                tableHTML += '<tr><td>Day 1</td><td>Bench Press</td><td>4 x 8</td><td>Focus on slow eccentric motion.</td></tr>';
-            } else if (objective === 'lose_weight') {
-                tableHTML += '<tr><td>Day 1</td><td>High Intensity Interval Training (HIIT)</td><td>30 mins</td><td>Keep heart rate elevated.</td></tr>';
+
+            // --- Define 4 core workout routines based on objective and frequency ---
+            const workoutRoutines = {
+                gain_muscle: {
+                    3: [
+                        { day: 'Workout 1', target: 'Push (Chest, Shoulders, Triceps)', setsReps: '4 x 8-12', notes: 'Heavy Compound Lift Focus: Bench Press (4x6). Accessories: Overhead Press, Tricep Extension.' },
+                        { day: 'Workout 2', target: 'Pull (Back, Biceps, Traps)', setsReps: '3 x 10-15', notes: 'Heavy Compound Lift Focus: Barbell Rows (4x8). Accessories: Lat Pulldowns, Bicep Curls.' },
+                        { day: 'Workout 3', target: 'Legs (Quads, Hams, Calves)', setsReps: '3-4 x 10-20', notes: 'Heavy Compound Lift Focus: Squats (4x8). Accessories: Leg Press, Romanian Deadlifts.' }
+                    ],
+                    4: [
+                        { day: 'Workout 1', target: 'Upper Body (Strength)', setsReps: '4 x 6-8', notes: 'Focus on heavy weights: Bench Press & Barbell Rows.' },
+                        { day: 'Workout 2', target: 'Lower Body (Strength)', setsReps: '4 x 6-10', notes: 'Focus on heavy weights: Squats & Deadlift Variations.' },
+                        { day: 'Workout 3', target: 'Upper Body (Hypertrophy)', setsReps: '3 x 10-15', notes: 'Focus on volume: Dumbbell Chest Press & Isolation work.' },
+                        { day: 'Workout 4', target: 'Lower Body (Hypertrophy)', setsReps: '3-4 x 12-20', notes: 'Focus on volume and feeling the burn: Lunges, Leg Extensions.' }
+                    ],
+                    6: [
+                        { day: 'Workout 1', target: 'Push', setsReps: '4 x 8-12', notes: 'Heavy focus.' },
+                        { day: 'Workout 2', target: 'Pull', setsReps: '3 x 10-15', notes: 'Heavy focus.' },
+                        { day: 'Workout 3', target: 'Legs', setsReps: '3-4 x 10-20', notes: 'Heavy focus.' },
+                        { day: 'Workout 4', target: 'Push (Volume)', setsReps: '3 x 12-15', notes: 'Focus on high reps and mind-muscle connection.' },
+                        { day: 'Workout 5', target: 'Pull (Volume)', setsReps: '3 x 12-15', notes: 'Focus on high reps and mind-muscle connection.' },
+                        { day: 'Workout 6', target: 'Legs (Volume)', setsReps: '3 x 15-20', notes: 'Focus on high reps and isolation.' }
+                    ]
+                },
+                lose_weight: {
+                    3: [
+                        { day: 'Workout 1', target: 'Full Body Circuit', setsReps: '3 Rounds', notes: 'High Intensity Interval Training (HIIT): Bodyweight Squats, Push-ups, Burpees. 45s work / 15s rest.' },
+                        { day: 'Workout 2', target: 'Steady-State Cardio', setsReps: '45 mins', notes: 'Brisk walk, cycling, or jogging. Keep heart rate steady.' },
+                        { day: 'Workout 3', target: 'Core & Endurance', setsReps: '3 Rounds', notes: 'Planks, Russian Twists, Mountain Climbers. Focus on maintaining intensity.' }
+                    ]
+                },
+                stay_healthy: {
+                    3: [
+                        { day: 'Workout 1', target: 'Mobility & Posture', setsReps: '30 mins', notes: 'Cat-Cow, Bird-Dog, Thoracic Rotations. Focus on range of motion.' },
+                        { day: 'Workout 2', target: 'Light Resistance', setsReps: '3 x 15', notes: 'Resistance Band Pull-aparts, Light Dumbbell Presses, Step-ups.' },
+                        { day: 'Workout 3', target: 'Yoga/Stretching', setsReps: '45 mins', notes: 'Focus on deep breaths and holding poses (e.g., Warrior, Downward Dog).' }
+                    ]
+                }
+            };
+
+            const trainingPlan = workoutRoutines[objective][frequency] || workoutRoutines[objective][3] || [
+                 { day: 'N/A', target: 'Rest Day / Activity', setsReps: 'N/A', notes: 'Workout plan could not be generated for this frequency. Please select 3 or 4 days per week for a structured plan.' }
+            ];
+
+            for (let week = 1; week <= 4; week++) {
+                tableHTML += `<tr><td colspan="4" class="week-header">🔥 WEEK ${week}: Base Building / Progressive Overload Focus</td></tr>`;
+
+                for (let i = 0; i < trainingPlan.length; i++) {
+                    const workout = trainingPlan[i];
+                    tableHTML += `
+                        <tr>
+                            <td>${workout.day}</td>
+                            <td><strong>${workout.target}</strong></td>
+                            <td>${workout.setsReps}</td>
+                            <td>${workout.notes}</td>
+                        </tr>
+                    `;
+                }
+
+                const restDays = 7 - trainingPlan.length;
+                if (restDays > 0) {
+                     tableHTML += `
+                        <tr>
+                            <td>Rest Days (${restDays} days)</td>
+                            <td>Recovery & Active Rest</td>
+                            <td>N/A</td>
+                            <td>Walk, stretch, and prioritize sleep. Prepare for the next week!</td>
+                        </tr>
+                    `;
+                }
             }
-            // ... more logic for other days/objectives
 
             tableHTML += '</tbody></table>';
+            tableHTML += '</div>'; // Close printableWorkout div
 
-            // 4. Insert the table into the container
+            // Add Print/Download buttons
+            tableHTML += `
+                <div class="print-download-buttons">
+                    <button onclick="window.print()" style="background-color: #337ab7;">🖨️ Print Workout</button>
+                    <button id="downloadPdfButton" style="background-color: #d9534f;">⬇️ Download PDF</button>
+                </div>
+            `;
+            
             document.getElementById('workoutTableContainer').innerHTML = tableHTML;
+
+            // --- 3. PDF DOWNLOAD LOGIC ---
+            document.getElementById('downloadPdfButton').addEventListener('click', function() {
+                const element = document.getElementById('printableWorkout');
+                const { jsPDF } = window.jspdf;
+
+                // Use html2canvas to render the HTML content to an image canvas
+                html2canvas(element, {
+                    scale: 2, // Higher scale for better quality
+                    useCORS: true,
+                    logging: false,
+                    scrollX: 0,
+                    scrollY: -window.scrollY // Ensure content is captured from top of page
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    
+                    // Calculate image dimensions to fit within PDF page
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+
+                    // Add the image (content) to the PDF
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                    heightLeft -= pdfHeight;
+
+                    // Handle content spanning multiple pages
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                        heightLeft -= pdfHeight;
+                    }
+
+                    pdf.save('4-Week-Fitness-Plan.pdf');
+                });
+            });
         });
     </script>
 
